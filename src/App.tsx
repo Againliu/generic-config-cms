@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Layout, ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { useAppStore } from './store/useAppStore';

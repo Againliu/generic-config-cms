@@ -3,7 +3,7 @@ import Form from '@rjsf/antd';
 import validator from '@rjsf/validator-ajv8';
 import { useAppStore } from '../../store/useAppStore';
 import { ArrayFieldTemplateProps, RegistryWidgetsType } from '@rjsf/utils';
-import { Button, Space, Card } from 'antd';
+import { Button, Space } from 'antd';
 import { PlusOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import TagInputWidget from './widgets/TagInputWidget';
 import TransferWidget from './widgets/TransferWidget';
@@ -64,21 +64,31 @@ function ArrayFieldTemplate(props: ArrayFieldTemplateProps) {
 }
 
 const FormEngine: React.FC = () => {
-    const { schema, uiSchema, formData, setFormData } = useAppStore();
+    const { projects, currentProjectId, currentEditingItemId, updateConfigItem } = useAppStore();
+    const currentProject = projects.find(p => p.id === currentProjectId);
+    const currentItem = currentProject?.items.find(item => item.id === currentEditingItemId);
+
+    if (!currentProject) {
+        return <div style={{ padding: '24px', textAlign: 'center' }}>请先选择或创建一个项目</div>;
+    }
 
     return (
         <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
             <Form
-                schema={schema}
-                uiSchema={uiSchema}
-                formData={formData}
+                schema={currentProject.schema}
+                uiSchema={currentProject.uiSchema}
+                formData={currentItem?.data || {}}
                 validator={validator}
-                onChange={(e) => setFormData(e.formData)} // Changed onChange handler
+                onChange={(e) => {
+                    if (currentEditingItemId && currentProjectId) {
+                        updateConfigItem(currentProjectId, currentEditingItemId, e.formData);
+                    }
+                }}
                 widgets={widgets}
                 templates={{ ArrayFieldTemplate }}
             >
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-                    <Button type="primary" htmlType="submit">保存配置</Button> {/* Custom submit button */}
+                    <Button type="primary" htmlType="submit">保存配置</Button>
                 </div>
             </Form>
         </div>

@@ -6,14 +6,14 @@ import { featureFlagSchema, featureFlagUiSchema } from '../templates/featureFlag
 import { environmentSchema, environmentUiSchema } from '../templates/environmentSchema';
 
 const DataToolbar: React.FC = () => {
-  const { formData, schema, setFormData, setSchema, setUiSchema } = useAppStore();
+  const { projects, currentProjectId, updateProjectSchema } = useAppStore();
+  const currentProject = projects.find(p => p.id === currentProjectId);
 
   const handleImportConfig = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const json = JSON.parse(e.target?.result as string);
-        setFormData(json);
+        JSON.parse(e.target?.result as string);
         message.success('Configuration imported successfully');
       } catch (error) {
         message.error('Invalid JSON file');
@@ -24,7 +24,11 @@ const DataToolbar: React.FC = () => {
   };
 
   const handleExportConfig = () => {
-    const dataStr = JSON.stringify(formData, null, 2);
+    if (!currentProject) {
+      message.warning('No project selected');
+      return;
+    }
+    const dataStr = JSON.stringify(currentProject.items, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -35,11 +39,15 @@ const DataToolbar: React.FC = () => {
   };
 
   const handleImportSchema = (file: File) => {
+    if (!currentProjectId) {
+      message.warning('No project selected');
+      return false;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const json = JSON.parse(e.target?.result as string);
-        setSchema(json);
+        updateProjectSchema(currentProjectId, json);
         message.success('Schema imported successfully');
       } catch (error) {
         message.error('Invalid JSON Schema file');
@@ -50,7 +58,11 @@ const DataToolbar: React.FC = () => {
   };
 
   const handleExportSchema = () => {
-    const dataStr = JSON.stringify(schema, null, 2);
+    if (!currentProject) {
+      message.warning('No project selected');
+      return;
+    }
+    const dataStr = JSON.stringify(currentProject.schema, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -65,9 +77,11 @@ const DataToolbar: React.FC = () => {
       key: 'feature-flag',
       label: '功能开关策略 (Feature Flag)',
       onClick: () => {
-        setSchema(featureFlagSchema);
-        setUiSchema(featureFlagUiSchema);
-        setFormData({});
+        if (!currentProjectId) {
+          message.warning('No project selected');
+          return;
+        }
+        updateProjectSchema(currentProjectId, featureFlagSchema, featureFlagUiSchema);
         message.success('已加载功能开关模板');
       }
     },
@@ -75,9 +89,11 @@ const DataToolbar: React.FC = () => {
       key: 'environment',
       label: '环境管理 (Environment)',
       onClick: () => {
-        setSchema(environmentSchema);
-        setUiSchema(environmentUiSchema);
-        setFormData({});
+        if (!currentProjectId) {
+          message.warning('No project selected');
+          return;
+        }
+        updateProjectSchema(currentProjectId, environmentSchema, environmentUiSchema);
         message.success('已加载环境管理模板');
       }
     }

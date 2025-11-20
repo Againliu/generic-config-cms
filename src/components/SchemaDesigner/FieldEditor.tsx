@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Select, Switch, Card } from 'antd';
+import { Form, Input, Select, Card } from 'antd';
 
 interface FieldEditorProps {
     fieldKey: string;
@@ -20,7 +20,7 @@ const FieldEditor: React.FC<FieldEditorProps> = ({ fieldKey, fieldSchema, onChan
         });
     }, [fieldKey, fieldSchema]);
 
-    const handleValuesChange = (changedValues: any, allValues: any) => {
+    const handleValuesChange = (_changedValues: any, allValues: any) => {
         const { key, ...schemaData } = allValues;
         onChange(key, schemaData);
     };

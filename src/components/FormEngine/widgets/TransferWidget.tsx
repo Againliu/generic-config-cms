@@ -10,7 +10,7 @@ const TransferWidget: React.FC<WidgetProps> = ({ value, onChange, disabled, read
         title: opt.label,
     }));
 
-    const handleChange = (newTargetKeys: string[], direction: TransferDirection, moveKeys: string[]) => {
+    const handleChange = (newTargetKeys: React.Key[], _direction: TransferDirection, _moveKeys: React.Key[]) => {
         onChange(newTargetKeys);
     };
 
